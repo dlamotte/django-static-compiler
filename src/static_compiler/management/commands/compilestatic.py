@@ -103,12 +103,12 @@ def run_command(cmd, root, dst, input, params):
             fp.write(stdout)
 
 
-def apply_preprocessors(root, src, dst, processors):
+def apply_precompilers(root, src, dst, compilers):
     """
-    Preprocessors operate based on the source filename, and apply to each
+    Precompilers operate based on the source filename, and apply to each
     file individually.
     """
-    matches = [(pattern, cmds) for pattern, cmds in processors.iteritems() if fnmatch(src, pattern)]
+    matches = [(pattern, cmds) for pattern, cmds in compilers.iteritems() if fnmatch(src, pattern)]
     if src == dst and not matches:
         return False
 
@@ -123,14 +123,14 @@ def apply_preprocessors(root, src, dst, processors):
     return True
 
 
-def apply_postcompilers(root, src_list, dst, processors):
+def apply_postcompilers(root, src_list, dst, compilers):
     """
     Postcompilers operate based on the destination filename. They operate on a collection
     of files, and are expected to take a list of 1+ inputs and generate a single output.
     """
     dst_file = os.path.join(root, dst)
 
-    matches = [(pattern, cmds) for pattern, cmds in processors.iteritems() if fnmatch(dst, pattern)]
+    matches = [(pattern, cmds) for pattern, cmds in compilers.iteritems() if fnmatch(dst, pattern)]
     if not matches:
         ensure_dirs(dst_file)
         # We should just concatenate the files
@@ -145,7 +145,7 @@ def apply_postcompilers(root, src_list, dst, processors):
 
     # TODO: probably doesnt play nice everywhere
     src_names = src_list
-    for pattern, cmd_list in processors.iteritems():
+    for pattern, cmd_list in compilers.iteritems():
         for cmd in cmd_list:
             run_command(cmd, root=root, dst=dst, input=' '.join(src_names), params=params)
             src_names = [dst]
@@ -180,7 +180,7 @@ class Command(BaseCommand):
                 continue
 
             bundle_opts['ext'] = os.path.splitext(bundle_name)[1]
-            bundle_opts.setdefault('preprocessors', config.get('preprocessors'))
+            bundle_opts.setdefault('precompilers', config.get('precompilers'))
             bundle_opts.setdefault('postcompilers', config.get('postcompilers'))
             bundle_mapping[bundle_name] = bundle_opts
 
@@ -191,9 +191,9 @@ class Command(BaseCommand):
             is_mapping = isinstance(bundle_opts['src'], dict)
 
             for src_path in bundle_opts['src']:
-                # TODO: we should guarantee that you cant preprocess an input into the
+                # TODO: we should guarantee that you cant precompile an input into the
                 # same output file
-                if not bundle_opts.get('preprocessors'):
+                if not bundle_opts.get('precompilers'):
                     continue
 
                 if is_mapping:
@@ -203,11 +203,11 @@ class Command(BaseCommand):
 
                 dst_abspath = os.path.join(cache_root, dst_path)
 
-                was_run = apply_preprocessors(
+                was_run = apply_precompilers(
                     root=cache_root,
                     src=src_path,
                     dst=dst_abspath,
-                    processors=bundle_opts.get('preprocessors'),
+                    compilers=bundle_opts.get('precompilers'),
                 )
                 if was_run:
                     copy_file(
@@ -225,5 +225,5 @@ class Command(BaseCommand):
                     root=cache_root,
                     src_list=src_outputs,
                     dst=os.path.join(settings.STATIC_ROOT, bundle_name),
-                    processors=bundle_opts.get('postcompilers'),
+                    compilers=bundle_opts.get('postcompilers'),
                 )

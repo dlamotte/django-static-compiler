@@ -76,11 +76,11 @@ An example configuration might look like this:
                 },
             },
         },
+        "precompilers": {
+            "*.less": ["node_modules/less/bin/lessc {input} {output}"],
+        },
         "postcompilers": {
             "*.js": ["node_modules/uglify-js/bin/uglifyjs {input} --source-map-root={relroot}/ --source-map-url={name}.map{ext} --source-map={relpath}/{name}.map{ext} -o {output}"],
-        },
-        "preprocessors": {
-            "*.less": ["node_modules/less/bin/lessc {input} {output}"],
         },
     }
 
@@ -133,23 +133,23 @@ The process currently looks like this:
 - django-admin.py compilestatic
 - django-admin.py collectstatic
 
-Pre-Processors
+Pre-Compilers
 ~~~~~~~~~~~~~~
 
-A pre-processor will **always** be run. This is nearly always a requirement as things like LESS files have to be processed
-befor they can be served in a browser.
+A pre-complier will **always** be run. This is nearly always a requirement as things like LESS files have to be compiled
+before they can be served in a browser.
 
-When pre-processing happens each input file is transformed to an output file (using the standard versioning scheme). For
+When pre-compiling happens each input file is transformed to an output file (using the standard versioning scheme). For
 example, if I had a bunch that included foo.less and bar.less, each would be compiled separately, and I'd end up with
 two output files: foo.css, and bar.css.
 
-The first pre-processor will change the input filename to be the expected output filename, and the following processors
+The first pre-compiler will change the input filename to be the expected output filename, and the following compilers
 will be passed that to work with.
 
 Post-Compilers
 ~~~~~~~~~~~~~~
 
-A post-compiler runs on pre-processed inputs and is expected to concatenate the results together into a unified file.
+A post-compiler runs on pre-compiler inputs and is expected to concatenate the results together into a unified file.
 
 For example, if it runs against foo.js and bar.js, it will output bundle.js.
 
@@ -179,7 +179,7 @@ You can also specify attributes, such as mimetype:
 If we're in DEBUG / development mode and 'bundle.js' is defined in STATIC_BUNDLES:
 
 1. Determines if it needs to recompile any files (based on its last modified time)
-2. Serves the preprocessed but not compiled files (turning this into many html tags).
+2. Serves the precompiled but not compiled files (turning this into many html tags).
 
 Otherwise:
 
