@@ -92,7 +92,7 @@ cache
   for compiling files.
 packages
   A mapping of bunches to their options (options can include top level options as well)
-precompilers
+preprocessors
   A mapping of input grep patterns to a list of (ordered) commands to execute on files
   in all situations (including DEBUG use).
 postcompilers
