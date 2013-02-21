@@ -180,7 +180,9 @@ class Command(BaseCommand):
                 continue
 
             bundle_opts['ext'] = os.path.splitext(bundle_name)[1]
-            bundle_opts.setdefault('precompilers', config.get('precompilers'))
+            bundle_opts.setdefault('precompilers',
+                config.get('precompilers') or config.get('preprocessors')
+            )
             bundle_opts.setdefault('postcompilers', config.get('postcompilers'))
             bundle_mapping[bundle_name] = bundle_opts
 
