@@ -12,6 +12,7 @@ from django.core.management.base import BaseCommand
 from django.utils.datastructures import SortedDict
 
 from static_compiler.constants import DEFAULT_CACHE_DIR
+from static_compiler.finders import StaticCompilerFinder
 
 
 def ensure_dirs(dst):
@@ -28,6 +29,9 @@ def copy_file(src, dst):
 def find_static_files(ignore_patterns=()):
     found_files = SortedDict()
     for finder in finders.get_finders():
+        if isinstance(finder, StaticCompilerFinder):
+            continue
+
         for path, storage in finder.list(ignore_patterns):
             found_files[path] = storage.path(path)
     return found_files
