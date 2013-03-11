@@ -109,7 +109,10 @@ def apply_precompilers(root, src, dst, compilers):
     file individually.
     """
     matches = [(pattern, cmds) for pattern, cmds in compilers.iteritems() if fnmatch(src, pattern)]
-    if src == dst and not matches:
+    dst_noroot = dst
+    if dst.startswith(os.path.join(root, '')):
+        dst_noroot = dst[len(os.path.join(root, '')):]
+    if src == dst_noroot and not matches:
         return False
 
     params = get_format_params(dst)
