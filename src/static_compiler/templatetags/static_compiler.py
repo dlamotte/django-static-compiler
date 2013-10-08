@@ -30,7 +30,7 @@ def get_file_path(src):
 
 
 @register.simple_tag
-def staticbundle(bundle, mimetype=None, **attrs):
+def staticbundle(bundle, mimetype=None, qs='', **attrs):
     """
     >>> {% staticbundle 'bundlename.css' %}
     >>> {% staticbundle 'bundlename.css' media='screen' %}
@@ -87,6 +87,9 @@ def staticbundle(bundle, mimetype=None, **attrs):
             mimetype = 'text/css'
         elif url.endswith('.js'):
             mimetype = 'text/javascript'
+
+        if qs:
+            url += '?' + qs
 
         output.append(TEMPLATES[mimetype] % dict(
             url=url,
